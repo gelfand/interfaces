@@ -56,6 +56,22 @@ pub mod types {
         }
     }
 
+    impl From<ethereum_types::H512> for PeerId {
+        fn from(src: ethereum_types::H512) -> Self {
+            Self {
+                id: Some(peer_id::Id::Devp2p(src.into())),
+            }
+        }
+    }
+
+    impl From<libp2p::PeerId> for PeerId {
+        fn from(src: libp2p::PeerId) -> Self {
+            Self {
+                id: Some(peer_id::Id::Libp2p(src.to_bytes().into())),
+            }
+        }
+    }
+
     // from PB
     impl From<H128> for ethereum_types::H128 {
         fn from(value: H128) -> Self {
@@ -105,6 +121,30 @@ pub mod types {
                 .copy_from_slice(H::from(value.lo.unwrap_or_default()).as_fixed_bytes());
 
             v.into()
+        }
+    }
+
+    impl TryFrom<PeerId> for ethereum_types::H512 {
+        type Error = Box<dyn std::error::Error + Send + Sync>;
+
+        fn try_from(PeerId { id }: PeerId) -> Result<Self, Self::Error> {
+            if let Some(peer_id::Id::Devp2p(id)) = id {
+                Ok(id.into())
+            } else {
+                Err("Invalid peer id".into())
+            }
+        }
+    }
+
+    impl TryFrom<PeerId> for libp2p::PeerId {
+        type Error = Box<dyn std::error::Error + Send + Sync>;
+
+        fn try_from(PeerId { id }: PeerId) -> Result<Self, Self::Error> {
+            if let Some(peer_id::Id::Libp2p(bytes)) = id {
+                Ok(libp2p::PeerId::from_bytes(&*bytes)?)
+            } else {
+                Err("Invalid peer id".into())
+            }
         }
     }
 

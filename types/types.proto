@@ -6,16 +6,27 @@ package types;
 
 option go_package = "./types;types";
 
-/* Service-level versioning shall use a 3-part version number (M.m.p) following semver rules */
-/* 1. MAJOR version (M): increment when you make incompatible changes                        */
-/* 2. MINOR version (m): increment when you add functionality in backward compatible manner  */
-/* 3. PATCH version (p): increment when you make backward compatible bug fixes               */
+/* Service-level versioning shall use a 3-part version number (M.m.p) following
+ * semver rules */
+/* 1. MAJOR version (M): increment when you make incompatible changes */
+/* 2. MINOR version (m): increment when you add functionality in backward
+ * compatible manner  */
+/* 3. PATCH version (p): increment when you make backward compatible bug fixes
+ */
 
-// Extensions of file-level options for service versioning: should *not* be modified
+// Extensions of file-level options for service versioning: should *not* be
+// modified
 extend google.protobuf.FileOptions {
   uint32 service_major_version = 50001;
   uint32 service_minor_version = 50002;
   uint32 service_patch_version = 50003;
+}
+
+message PeerId {
+  oneof id {
+    H512 devp2p = 1;
+    bytes libp2p = 2;
+  }
 }
 
 message H128 {
@@ -69,8 +80,9 @@ message ExecutionPayload {
   types.H256 baseFeePerGas = 12;
   types.H256 blockHash = 13;
   /*
-    Array of transaction objects, each object is a byte list. 
-    See https://github.com/ethereum/execution-apis/blob/v1.0.0-alpha.2/src/engine/interop/specification.md
+    Array of transaction objects, each object is a byte list.
+    See
+    https://github.com/ethereum/execution-apis/blob/v1.0.0-alpha.2/src/engine/interop/specification.md
   */
   repeated bytes transactions = 14;
 }
